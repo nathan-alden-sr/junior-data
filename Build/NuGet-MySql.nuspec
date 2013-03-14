@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>JuniorData.MySql</id>
+		<version>$version$</version>
+		<title>JuniorData - MySQL</title>
+		<authors>Nathan Alden Sr.</authors>
+		<description>JuniorData is the easy-to-learn, easy-to-use data access framework for .NET. This package provides data access components for MySQL.</description>
+		<releaseNotes></releaseNotes>
+		<projectUrl>https://nathanalden.github.com/JuniorData</projectUrl>
+		<iconUrl>https://docs.google.com/uc?export=download&amp;id=0B8a4O6RATfaXQ2YxekpxbXRfUjQ</iconUrl>
+		<dependencies>
+			<group>
+				<dependency id="JuniorCommon" version="3.0.0"/>
+				<dependency id="JuniorData.Core" version="1.0.0"/>
+				<dependency id="MySql.Data" version="6.6.4"/>
+			</group>
+		</dependencies>
+		<references>
+			<reference file="Junior.Data.MySql.dll"/>
+		</references>
+		<tags>Junior</tags>
+	</metadata>
+	<files>
+		<file src="NuGet Staging\LICENSE"/>
+		<file src="NuGet Staging\README.md"/>
+		<file src="NuGet Staging\bin\*.*" target="lib\net40"/>
+	</files>
+</package>
