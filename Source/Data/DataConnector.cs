@@ -43,6 +43,8 @@ namespace Junior.Data
 			string formattedSql = FormatSql(sql);
 			TCommand command = _commandProvider.GetCommand(context, formattedSql, parameters);
 
+			await command.OpenConnection();
+
 			return await command.ExecuteNonQueryAsync();
 		}
 
@@ -60,6 +62,9 @@ namespace Junior.Data
 
 			string formattedSql = FormatSql(sql);
 			TCommand command = _commandProvider.GetCommand(context, formattedSql, parameters);
+
+			await command.OpenConnection();
+
 			object value = await command.ExecuteScalarAsync();
 
 			if (value == null || value == DBNull.Value)
@@ -91,6 +96,8 @@ namespace Junior.Data
 
 			string formattedSql = FormatSql(sql);
 			TCommand command = _commandProvider.GetCommand(context, formattedSql, parameters);
+
+			await command.OpenConnection();
 
 			return (TDataReader)await command.ExecuteReaderAsync(commandBehavior);
 		}

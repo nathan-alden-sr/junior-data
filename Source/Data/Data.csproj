@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ConnectionContext.cs" />
     <Compile Include="DataConnector.cs" />
+    <Compile Include="DbCommandExtensions.cs" />
     <Compile Include="ThirtySecondCommandTimeoutProvider.cs" />
     <Compile Include="IConnectionStringProvider.cs" />
     <Compile Include="TransactionDisposeBehavior.cs" />
