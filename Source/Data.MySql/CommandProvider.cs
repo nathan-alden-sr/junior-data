@@ -34,7 +34,6 @@ namespace Junior.Data.MySql
 			{
 				command.Parameters.Add(parameter);
 			}
-			command.Prepare();
 
 			return command;
 		}
