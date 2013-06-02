@@ -11,9 +11,9 @@
 		<iconUrl>https://docs.google.com/uc?export=download&amp;id=0B8a4O6RATfaXQ2YxekpxbXRfUjQ</iconUrl>
 		<dependencies>
 			<group>
-				<dependency id="JuniorCommon" version="3.0.1"/>
-				<dependency id="JuniorData.Core" version="1.0.2"/>
-				<dependency id="MySql.Data" version="6.6.4"/>
+				<dependency id="JuniorCommon" version="3.3.1"/>
+				<dependency id="JuniorData.Core" version="3.0.0"/>
+				<dependency id="MySql.Data" version="6.6.5"/>
 			</group>
 		</dependencies>
 		<references>
