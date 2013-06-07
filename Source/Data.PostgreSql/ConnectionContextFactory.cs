@@ -18,33 +18,33 @@ namespace Junior.Data.PostgreSql
 			_connectionProvider = connectionProvider;
 		}
 
-		public async Task<ConnectionContext> Create(string connectionKey)
+		public async Task<ConnectionContext> CreateAsync(string connectionKey)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			NpgsqlConnection connection = await _connectionProvider.GetConnection(connectionKey, false);
+			NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, false);
 
 			return new ConnectionContext(connectionKey, connection, null, TransactionDisposeBehavior.None);
 		}
 
-		public async Task<ConnectionContext> CreateWithTransaction(string connectionKey, TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
+		public async Task<ConnectionContext> CreateWithTransactionAsync(string connectionKey, TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			NpgsqlConnection connection = await _connectionProvider.GetConnection(connectionKey, true);
+			NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, true);
 			NpgsqlTransaction transaction = connection.BeginTransaction();
 
 			return new ConnectionContext(connectionKey, connection, transaction, transactionDisposeBehavior);
 		}
 
-		public async Task<ConnectionContext> CreateWithTransaction(
+		public async Task<ConnectionContext> CreateWithTransactionAsync(
 			string connectionKey,
 			IsolationLevel isolationLevel,
 			TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			NpgsqlConnection connection = await _connectionProvider.GetConnection(connectionKey, true);
+			NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, true);
 			NpgsqlTransaction transaction = connection.BeginTransaction(isolationLevel);
 
 			return new ConnectionContext(connectionKey, connection, transaction, transactionDisposeBehavior);

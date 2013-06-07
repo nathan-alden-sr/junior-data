@@ -17,33 +17,33 @@ namespace Junior.Data.SqlServer
 			_connectionProvider = connectionProvider;
 		}
 
-		public async Task<ConnectionContext> Create(string connectionKey)
+		public async Task<ConnectionContext> CreateAsync(string connectionKey)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			SqlConnection connection = await _connectionProvider.GetConnection(connectionKey, false);
+			SqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, false);
 
 			return new ConnectionContext(connectionKey, connection, null, TransactionDisposeBehavior.None);
 		}
 
-		public async Task<ConnectionContext> CreateWithTransaction(string connectionKey, TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
+		public async Task<ConnectionContext> CreateWithTransactionAsync(string connectionKey, TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			SqlConnection connection = await _connectionProvider.GetConnection(connectionKey, true);
+			SqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, true);
 			SqlTransaction transaction = connection.BeginTransaction();
 
 			return new ConnectionContext(connectionKey, connection, transaction, transactionDisposeBehavior);
 		}
 
-		public async Task<ConnectionContext> CreateWithTransaction(
+		public async Task<ConnectionContext> CreateWithTransactionAsync(
 			string connectionKey,
 			IsolationLevel isolationLevel,
 			TransactionDisposeBehavior transactionDisposeBehavior = TransactionDisposeBehavior.RollbackIfNonFinalized)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			SqlConnection connection = await _connectionProvider.GetConnection(connectionKey, true);
+			SqlConnection connection = await _connectionProvider.GetConnectionAsync(connectionKey, true);
 			SqlTransaction transaction = connection.BeginTransaction(isolationLevel);
 
 			return new ConnectionContext(connectionKey, connection, transaction, transactionDisposeBehavior);

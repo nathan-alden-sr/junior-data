@@ -8,7 +8,7 @@ namespace Junior.Data
 {
 	public static class DbCommandExtensions
 	{
-		public static async Task OpenConnection(this DbCommand command)
+		public static async Task OpenConnectionAsync(this DbCommand command)
 		{
 			command.ThrowIfNull("command");
 
