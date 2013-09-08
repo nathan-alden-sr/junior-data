@@ -1,6 +1,4 @@
-﻿using System;
-
-using Junior.Common;
+﻿using Junior.Common;
 
 using MySql.Data.MySqlClient;
 
@@ -22,14 +20,7 @@ namespace Junior.Data.MySql
 		{
 			reader.ThrowIfNull("reader");
 
-			Type type = typeof(T);
-
-			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && reader.IsDBNull(ordinal))
-			{
-				return defaultValue;
-			}
-
-			return (T)reader.GetValue(ordinal);
+			return reader.IsDBNull(ordinal) ? defaultValue : (T)reader.GetValue(ordinal);
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 
 using Junior.Common;
 
@@ -21,14 +20,7 @@ namespace Junior.Data.SqlServer
 		{
 			reader.ThrowIfNull("reader");
 
-			Type type = typeof(T);
-
-			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && reader.IsDBNull(ordinal))
-			{
-				return defaultValue;
-			}
-
-			return (T)reader.GetValue(ordinal);
+			return reader.IsDBNull(ordinal) ? defaultValue : (T)reader.GetValue(ordinal);
 		}
 	}
 }
