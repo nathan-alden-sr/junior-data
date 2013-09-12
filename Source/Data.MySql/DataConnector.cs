@@ -4,10 +4,10 @@ using MySql.Data.MySqlClient;
 
 namespace Junior.Data.MySql
 {
-	public abstract class DataConnector : DataConnector<ConnectionContext, MySqlCommand, MySqlDataReader, MySqlDataAdapter, MySqlParameter, MySqlDbType>
+	public abstract class DataConnector : DataConnector<MySqlConnection, MySqlCommand, MySqlDataReader, MySqlDataAdapter, MySqlParameter, MySqlDbType>
 	{
-		protected DataConnector(ICommandProvider<ConnectionContext, MySqlCommand, MySqlParameter> commandProvider)
-			: base(commandProvider)
+		protected DataConnector(IConnectionProvider<MySqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionProvider, commandTimeoutProvider, connectionKey)
 		{
 		}
 
@@ -37,11 +37,11 @@ namespace Junior.Data.MySql
 			parameterName.ThrowIfNull("parameterName");
 
 			return new MySqlParameter(parameterName, type, size)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed MySqlParameter GetParameter(string parameterName, object value, MySqlDbType type, byte precision, byte scale)
@@ -49,11 +49,11 @@ namespace Junior.Data.MySql
 			parameterName.ThrowIfNull("parameterName");
 
 			return new MySqlParameter(parameterName, type)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed MySqlDataAdapter GetDataAdapter(MySqlCommand command)

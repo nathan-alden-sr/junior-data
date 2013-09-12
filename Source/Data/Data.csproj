@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Junior.Data</RootNamespace>
     <AssemblyName>Junior.Data</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -41,17 +41,11 @@
     <AssemblyOriginatorKeyFile>..\JuniorData.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ConnectionContext.cs" />
     <Compile Include="DataConnector.cs" />
-    <Compile Include="DbCommandExtensions.cs" />
     <Compile Include="ThirtySecondCommandTimeoutProvider.cs" />
     <Compile Include="IConnectionStringProvider.cs" />
-    <Compile Include="TransactionDisposeBehavior.cs" />
-    <Compile Include="IConnectionContext.cs" />
     <Compile Include="IConnectionProvider.cs" />
-    <Compile Include="IConnectionContextFactory.cs" />
     <Compile Include="ICommandTimeoutProvider.cs" />
-    <Compile Include="ICommandProvider.cs" />
     <Compile Include="InfiniteCommandTimeoutProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -6,10 +6,10 @@ using NpgsqlTypes;
 
 namespace Junior.Data.PostgreSql
 {
-	public abstract class DataConnector : DataConnector<ConnectionContext, NpgsqlCommand, NpgsqlDataReader, NpgsqlDataAdapter, NpgsqlParameter, NpgsqlDbType>
+	public abstract class DataConnector : DataConnector<NpgsqlConnection, NpgsqlCommand, NpgsqlDataReader, NpgsqlDataAdapter, NpgsqlParameter, NpgsqlDbType>
 	{
-		protected DataConnector(ICommandProvider<ConnectionContext, NpgsqlCommand, NpgsqlParameter> commandProvider)
-			: base(commandProvider)
+		protected DataConnector(IConnectionProvider<NpgsqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionProvider, commandTimeoutProvider, connectionKey)
 		{
 		}
 
@@ -39,11 +39,11 @@ namespace Junior.Data.PostgreSql
 			parameterName.ThrowIfNull("parameterName");
 
 			return new NpgsqlParameter(parameterName, type, size)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed NpgsqlParameter GetParameter(string parameterName, object value, NpgsqlDbType type, byte precision, byte scale)
@@ -51,11 +51,11 @@ namespace Junior.Data.PostgreSql
 			parameterName.ThrowIfNull("parameterName");
 
 			return new NpgsqlParameter(parameterName, type)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed NpgsqlDataAdapter GetDataAdapter(NpgsqlCommand command)

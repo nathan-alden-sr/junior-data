@@ -5,10 +5,10 @@ using Junior.Common;
 
 namespace Junior.Data.SqlServer
 {
-	public abstract class DataConnector : DataConnector<ConnectionContext, SqlCommand, SqlDataReader, SqlDataAdapter, SqlParameter, SqlDbType>
+	public abstract class DataConnector : DataConnector<SqlConnection, SqlCommand, SqlDataReader, SqlDataAdapter, SqlParameter, SqlDbType>
 	{
-		protected DataConnector(ICommandProvider<ConnectionContext, SqlCommand, SqlParameter> commandProvider)
-			: base(commandProvider)
+		protected DataConnector(IConnectionProvider<SqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionProvider, commandTimeoutProvider, connectionKey)
 		{
 		}
 
@@ -38,11 +38,11 @@ namespace Junior.Data.SqlServer
 			parameterName.ThrowIfNull("parameterName");
 
 			return new SqlParameter(parameterName, type, size)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed SqlParameter GetParameter(string parameterName, object value, SqlDbType type, byte precision, byte scale)
@@ -50,11 +50,11 @@ namespace Junior.Data.SqlServer
 			parameterName.ThrowIfNull("parameterName");
 
 			return new SqlParameter(parameterName, type)
-				{
-					Precision = precision,
-					Scale = scale,
-					Value = GetParameterValue(value)
-				};
+			{
+				Precision = precision,
+				Scale = scale,
+				Value = GetParameterValue(value)
+			};
 		}
 
 		protected override sealed SqlDataAdapter GetDataAdapter(SqlCommand command)
