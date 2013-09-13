@@ -196,6 +196,7 @@ namespace Junior.Data
 
 			var command = (TCommand)connection.CreateCommand();
 
+			command.CommandText = sql;
 			command.CommandTimeout = (int)_commandTimeoutProvider.GetTimeout(_connectionKey).TotalSeconds;
 			command.CommandType = CommandType.Text;
 
