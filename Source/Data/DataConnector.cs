@@ -54,9 +54,9 @@ namespace Junior.Data
 			}
 		}
 
-		protected async Task<int> ExecuteNonQueryAsync(string sql, params TParameter[] parameters)
+		protected Task<int> ExecuteNonQueryAsync(string sql, params TParameter[] parameters)
 		{
-			return await ExecuteNonQueryAsync(sql, (IEnumerable<TParameter>)parameters);
+			return ExecuteNonQueryAsync(sql, (IEnumerable<TParameter>)parameters);
 		}
 
 		protected async Task<T> ExecuteScalarAsync<T>(string sql, IEnumerable<TParameter> parameters)
@@ -89,9 +89,9 @@ namespace Junior.Data
 			}
 		}
 
-		protected async Task<T> ExecuteScalarAsync<T>(string sql, params TParameter[] parameters)
+		protected Task<T> ExecuteScalarAsync<T>(string sql, params TParameter[] parameters)
 		{
-			return await ExecuteScalarAsync<T>(sql, (IEnumerable<TParameter>)parameters);
+			return ExecuteScalarAsync<T>(sql, (IEnumerable<TParameter>)parameters);
 		}
 
 		protected async Task<TDataReader> ExecuteReaderAsync(CommandBehavior commandBehavior, string sql, IEnumerable<TParameter> parameters)
@@ -116,22 +116,22 @@ namespace Junior.Data
 			}
 		}
 
-		protected async Task<TDataReader> ExecuteReaderAsync(CommandBehavior commandBehavior, string sql, params TParameter[] parameters)
+		protected Task<TDataReader> ExecuteReaderAsync(CommandBehavior commandBehavior, string sql, params TParameter[] parameters)
 		{
-			return await ExecuteReaderAsync(commandBehavior, sql, (IEnumerable<TParameter>)parameters);
+			return ExecuteReaderAsync(commandBehavior, sql, (IEnumerable<TParameter>)parameters);
 		}
 
-		protected async Task<TDataReader> ExecuteReaderAsync(string sql, IEnumerable<TParameter> parameters)
+		protected Task<TDataReader> ExecuteReaderAsync(string sql, IEnumerable<TParameter> parameters)
 		{
-			return await ExecuteReaderAsync(CommandBehavior.Default, sql, parameters);
+			return ExecuteReaderAsync(CommandBehavior.CloseConnection, sql, parameters);
 		}
 
-		protected async Task<TDataReader> ExecuteReaderAsync(string sql, params TParameter[] parameters)
+		protected Task<TDataReader> ExecuteReaderAsync(string sql, params TParameter[] parameters)
 		{
-			return await ExecuteReaderAsync(CommandBehavior.Default, sql, (IEnumerable<TParameter>)parameters);
+			return ExecuteReaderAsync(CommandBehavior.CloseConnection, sql, (IEnumerable<TParameter>)parameters);
 		}
 
-		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
+		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(CommandBehavior commandBehavior, string sql, Func<TDataReader, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
 		{
 			sql.ThrowIfNull("sql");
 			getProjectedObjectDelegate.ThrowIfNull("getProjectedObjectDelegate");
@@ -140,7 +140,7 @@ namespace Junior.Data
 
 			var projections = new List<T>();
 
-			using (TDataReader reader = await ExecuteReaderAsync(sql, parameters))
+			using (TDataReader reader = await ExecuteReaderAsync(commandBehavior, sql, parameters))
 			{
 				if (reader.HasRows)
 				{
@@ -154,9 +154,19 @@ namespace Junior.Data
 			return projections;
 		}
 
-		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, params TParameter[] parameters)
+		protected Task<IEnumerable<T>> ExecuteProjectionAsync<T>(CommandBehavior commandBehavior, string sql, Func<TDataReader, T> getProjectedObjectDelegate, params TParameter[] parameters)
 		{
-			return await ExecuteProjectionAsync(sql, getProjectedObjectDelegate, (IEnumerable<TParameter>)parameters);
+			return ExecuteProjectionAsync(commandBehavior, sql, getProjectedObjectDelegate, (IEnumerable<TParameter>)parameters);
+		}
+
+		protected Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
+		{
+			return ExecuteProjectionAsync(CommandBehavior.CloseConnection, sql, getProjectedObjectDelegate, parameters);
+		}
+
+		protected Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, params TParameter[] parameters)
+		{
+			return ExecuteProjectionAsync(CommandBehavior.CloseConnection, sql, getProjectedObjectDelegate, (IEnumerable<TParameter>)parameters);
 		}
 
 		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<DataRow, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
