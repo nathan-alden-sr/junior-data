@@ -111,10 +111,7 @@ namespace Junior.Data
 			{
 				AsyncTransaction<TConnection> transaction;
 
-				if (!_stack.TryPeek(out transaction))
-				{
-					throw new InvalidOperationException("There is no current asynchronous transaction in this context.");
-				}
+				_stack.TryPeek(out transaction);
 
 				return transaction;
 			}
