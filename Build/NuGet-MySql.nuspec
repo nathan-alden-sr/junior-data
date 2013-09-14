@@ -12,7 +12,7 @@
 		<dependencies>
 			<group>
 				<dependency id="JuniorCommon" version="3.8.0"/>
-				<dependency id="JuniorData.Core" version="5.0.0"/>
+				<dependency id="JuniorData.Core" version="6.0.0"/>
 				<dependency id="MySql.Data" version="6.6.5"/>
 			</group>
 		</dependencies>

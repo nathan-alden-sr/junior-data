@@ -12,7 +12,7 @@
 		<dependencies>
 			<group>
 				<dependency id="JuniorCommon" version="3.8.0"/>
-				<dependency id="JuniorData.Core" version="5.0.0"/>
+				<dependency id="JuniorData.Core" version="6.0.0"/>
 				<dependency id="Npgsql" version="2.0.12.1"/>
 			</group>
 		</dependencies>

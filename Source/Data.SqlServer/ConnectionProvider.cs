@@ -16,7 +16,21 @@ namespace Junior.Data.SqlServer
 			_connectionStringProvider = connectionStringProvider;
 		}
 
-		public async Task<SqlConnection> GetConnectionAsync(string connectionKey, bool openConnection)
+		public SqlConnection GetConnection(string connectionKey, bool openConnection = true)
+		{
+			connectionKey.ThrowIfNull("connectionKey");
+
+			var connection = new SqlConnection(_connectionStringProvider.ByKey(connectionKey));
+
+			if (openConnection)
+			{
+				connection.Open();
+			}
+
+			return connection;
+		}
+
+		public async Task<SqlConnection> GetConnectionAsync(string connectionKey, bool openConnection = true)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 

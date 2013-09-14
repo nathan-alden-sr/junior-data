@@ -17,7 +17,21 @@ namespace Junior.Data.MySql
 			_connectionStringProvider = connectionStringProvider;
 		}
 
-		public async Task<MySqlConnection> GetConnectionAsync(string connectionKey, bool openConnection)
+		public MySqlConnection GetConnection(string connectionKey, bool openConnection = true)
+		{
+			connectionKey.ThrowIfNull("connectionKey");
+
+			var connection = new MySqlConnection(_connectionStringProvider.ByKey(connectionKey));
+
+			if (openConnection)
+			{
+				connection.Open();
+			}
+
+			return connection;
+		}
+
+		public async Task<MySqlConnection> GetConnectionAsync(string connectionKey, bool openConnection = true)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 

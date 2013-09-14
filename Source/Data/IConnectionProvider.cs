@@ -6,6 +6,7 @@ namespace Junior.Data
 	public interface IConnectionProvider<TConnection>
 		where TConnection : DbConnection
 	{
-		Task<TConnection> GetConnectionAsync(string connectionKey, bool openConnection);
+		TConnection GetConnection(string connectionKey, bool openConnection = true);
+		Task<TConnection> GetConnectionAsync(string connectionKey, bool openConnection = true);
 	}
 }

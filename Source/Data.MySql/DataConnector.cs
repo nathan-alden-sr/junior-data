@@ -6,8 +6,8 @@ namespace Junior.Data.MySql
 {
 	public abstract class DataConnector : DataConnector<MySqlConnection, MySqlCommand, MySqlDataReader, MySqlDataAdapter, MySqlParameter, MySqlDbType>
 	{
-		protected DataConnector(IConnectionProvider<MySqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
-			: base(connectionProvider, commandTimeoutProvider, connectionKey)
+		protected DataConnector(IConnectionResolver<MySqlConnection> connectionResolver, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionResolver, commandTimeoutProvider, connectionKey)
 		{
 		}
 

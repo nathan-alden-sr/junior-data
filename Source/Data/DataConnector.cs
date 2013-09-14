@@ -19,14 +19,14 @@ namespace Junior.Data
 	{
 		private readonly ICommandTimeoutProvider _commandTimeoutProvider;
 		private readonly string _connectionKey;
-		private readonly IConnectionProvider<TConnection> _connectionProvider;
+		private readonly IConnectionResolver<TConnection> _connectionResolver;
 
-		protected DataConnector(IConnectionProvider<TConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+		protected DataConnector(IConnectionResolver<TConnection> connectionResolver, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
 		{
-			connectionProvider.ThrowIfNull("connectionProvider");
+			connectionResolver.ThrowIfNull("connectionResolver");
 			commandTimeoutProvider.ThrowIfNull("commandTimeoutProvider");
 
-			_connectionProvider = connectionProvider;
+			_connectionResolver = connectionResolver;
 			_commandTimeoutProvider = commandTimeoutProvider;
 			_connectionKey = connectionKey;
 		}
@@ -46,9 +46,9 @@ namespace Junior.Data
 
 			string formattedSql = FormatSql(sql);
 
-			using (TConnection connection = await _connectionProvider.GetConnectionAsync(_connectionKey, true))
+			using (IResolvedConnection<TConnection> resolvedConnection = await _connectionResolver.ResolveConnectionAsync(_connectionKey))
 			{
-				TCommand command = CreateCommand(connection, formattedSql, parameters);
+				TCommand command = CreateCommand(resolvedConnection.Connection, formattedSql, parameters);
 
 				return await command.ExecuteNonQueryAsync();
 			}
@@ -67,9 +67,9 @@ namespace Junior.Data
 
 			string formattedSql = FormatSql(sql);
 
-			using (TConnection connection = await _connectionProvider.GetConnectionAsync(_connectionKey, true))
+			using (IResolvedConnection<TConnection> resolvedConnection = await _connectionResolver.ResolveConnectionAsync(_connectionKey))
 			{
-				TCommand command = CreateCommand(connection, formattedSql, parameters);
+				TCommand command = CreateCommand(resolvedConnection.Connection, formattedSql, parameters);
 
 				object value = await command.ExecuteScalarAsync();
 
@@ -101,17 +101,17 @@ namespace Junior.Data
 			parameters = parameters ?? Enumerable.Empty<TParameter>();
 
 			string formattedSql = FormatSql(sql);
-			TConnection connection = await _connectionProvider.GetConnectionAsync(_connectionKey, true);
+			IResolvedConnection<TConnection> resolvedConnection = await _connectionResolver.ResolveConnectionAsync(_connectionKey);
 
 			try
 			{
-				TCommand command = CreateCommand(connection, formattedSql, parameters);
+				TCommand command = CreateCommand(resolvedConnection.Connection, formattedSql, parameters);
 
 				return (TDataReader)await command.ExecuteReaderAsync(commandBehavior);
 			}
 			catch
 			{
-				connection.Dispose();
+				resolvedConnection.Dispose();
 				throw;
 			}
 		}
@@ -179,9 +179,9 @@ namespace Junior.Data
 			var table = new DataTable();
 			string formattedSql = FormatSql(sql);
 
-			using (TConnection connection = await _connectionProvider.GetConnectionAsync(_connectionKey, true))
+			using (IResolvedConnection<TConnection> resolvedConnection = await _connectionResolver.ResolveConnectionAsync(_connectionKey))
 			{
-				TCommand command = CreateCommand(connection, formattedSql, parameters);
+				TCommand command = CreateCommand(resolvedConnection.Connection, formattedSql, parameters);
 				TDataAdapter dataAdapter = GetDataAdapter(command);
 
 				dataAdapter.Fill(table);

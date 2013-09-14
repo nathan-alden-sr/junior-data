@@ -17,7 +17,21 @@ namespace Junior.Data.PostgreSql
 			_connectionStringProvider = connectionStringProvider;
 		}
 
-		public async Task<NpgsqlConnection> GetConnectionAsync(string connectionKey, bool openConnection)
+		public NpgsqlConnection GetConnection(string connectionKey, bool openConnection = true)
+		{
+			connectionKey.ThrowIfNull("connectionKey");
+
+			var connection = new NpgsqlConnection(_connectionStringProvider.ByKey(connectionKey));
+
+			if (openConnection)
+			{
+				connection.Open();
+			}
+
+			return connection;
+		}
+
+		public async Task<NpgsqlConnection> GetConnectionAsync(string connectionKey, bool openConnection = true)
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 

@@ -8,8 +8,8 @@ namespace Junior.Data.PostgreSql
 {
 	public abstract class DataConnector : DataConnector<NpgsqlConnection, NpgsqlCommand, NpgsqlDataReader, NpgsqlDataAdapter, NpgsqlParameter, NpgsqlDbType>
 	{
-		protected DataConnector(IConnectionProvider<NpgsqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
-			: base(connectionProvider, commandTimeoutProvider, connectionKey)
+		protected DataConnector(IConnectionResolver<NpgsqlConnection> connectionResolver, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionResolver, commandTimeoutProvider, connectionKey)
 		{
 		}
 

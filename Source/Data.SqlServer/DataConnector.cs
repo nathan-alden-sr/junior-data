@@ -7,8 +7,8 @@ namespace Junior.Data.SqlServer
 {
 	public abstract class DataConnector : DataConnector<SqlConnection, SqlCommand, SqlDataReader, SqlDataAdapter, SqlParameter, SqlDbType>
 	{
-		protected DataConnector(IConnectionProvider<SqlConnection> connectionProvider, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
-			: base(connectionProvider, commandTimeoutProvider, connectionKey)
+		protected DataConnector(IConnectionResolver<SqlConnection> connectionResolver, ICommandTimeoutProvider commandTimeoutProvider, string connectionKey)
+			: base(connectionResolver, commandTimeoutProvider, connectionKey)
 		{
 		}
 
