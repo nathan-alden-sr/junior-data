@@ -160,7 +160,7 @@ namespace Junior.Data
 
 		protected virtual void OnDispose(bool disposing)
 		{
-			if (!_disposed)
+			if (!_disposed && disposing)
 			{
 				lock (_lockObject)
 				{
@@ -182,6 +182,12 @@ namespace Junior.Data
 					AsyncTransaction<TConnection> transaction;
 
 					_stack.TryPop(out transaction);
+
+					if (transaction != this)
+					{
+						throw new InvalidOperationException("Must dispose instances in order of creation, reversed.");
+					}
+
 					try
 					{
 						_transactionScope.Dispose();
