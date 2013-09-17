@@ -17,10 +17,7 @@ namespace Junior.Data
 		where TConnection : DbConnection
 	{
 		// ReSharper disable once StaticFieldInGenericType
-		private static readonly Dictionary<string, int> _connectionKeyCounts = new Dictionary<string, int>();
-		// ReSharper disable once StaticFieldInGenericType
 		private static readonly object _lockObject = new object();
-		private static readonly ConcurrentStack<AsyncTransaction<TConnection>> _stack = new ConcurrentStack<AsyncTransaction<TConnection>>();
 		private readonly IEnumerable<string> _connectionKeys;
 		private readonly TransactionScope _transactionScope;
 		private bool _disposed;
@@ -34,30 +31,19 @@ namespace Junior.Data
 
 			lock (_lockObject)
 			{
-				foreach (string connectionKey in _connectionKeys)
+				string logicalDataName = GetLogicalDataName();
+				var state = (AsyncTransactionLogicalState)CallContext.LogicalGetData(logicalDataName);
+
+				if (state == null)
 				{
-					string logicalDataName = GetLogicalDataName(connectionKey);
-
-					if (CallContext.LogicalGetData(logicalDataName) == null)
-					{
-						CallContext.LogicalSetData(logicalDataName, connectionProvider.GetConnection(connectionKey, false));
-					}
-
-					int count;
-
-					if (!_connectionKeyCounts.TryGetValue(connectionKey, out count))
-					{
-						_connectionKeyCounts.Add(connectionKey, 1);
-					}
-					else
-					{
-						_connectionKeyCounts[connectionKey] = count + 1;
-					}
+					state = new AsyncTransactionLogicalState(connectionProvider);
+					CallContext.LogicalSetData(logicalDataName, state);
 				}
+
+				state.Push(this);
 			}
 
 			_transactionScope = new TransactionScope(transactionScopeOption, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
-			_stack.Push(this);
 		}
 
 		public AsyncTransaction(IConnectionProvider<TConnection> connectionProvider, TransactionScopeOption transactionScopeOption, TransactionOptions transactionOptions, params string[] connectionKeys)
@@ -109,11 +95,9 @@ namespace Junior.Data
 		{
 			get
 			{
-				AsyncTransaction<TConnection> transaction;
+				var state = (AsyncTransactionLogicalState)CallContext.LogicalGetData(GetLogicalDataName());
 
-				_stack.TryPeek(out transaction);
-
-				return transaction;
+				return state.IfNotNull(arg => arg.CurrentTransaction);
 			}
 		}
 
@@ -121,23 +105,14 @@ namespace Junior.Data
 		{
 			connectionKey.ThrowIfNull("connectionKey");
 
-			string logicalDataName = GetLogicalDataName(connectionKey);
+			var state = (AsyncTransactionLogicalState)CallContext.LogicalGetData(GetLogicalDataName());
 
-			lock (_lockObject)
+			if (state == null)
 			{
-				var connection = (TConnection)CallContext.LogicalGetData(logicalDataName);
-
-				if (connection == null)
-				{
-					throw new InvalidOperationException(String.Format("No connection with the key '{0}' is available in this context.", connectionKey));
-				}
-				if (openConnection && connection.State == ConnectionState.Closed)
-				{
-					connection.Open();
-				}
-
-				return connection;
+				throw new InvalidOperationException("No transaction is available in this context.");
 			}
+
+			return state.GetConnection(connectionKey, openConnection);
 		}
 
 		public void Commit()
@@ -162,48 +137,106 @@ namespace Junior.Data
 		{
 			if (!_disposed && disposing)
 			{
-				lock (_lockObject)
+				var state = (AsyncTransactionLogicalState)CallContext.LogicalGetData(GetLogicalDataName());
+
+				if (state != null)
 				{
-					foreach (string connectionKey in _connectionKeys)
-					{
-						if (--_connectionKeyCounts[connectionKey] > 0)
-						{
-							continue;
-						}
+					state.Pop(this);
+				}
 
-						string logicalDataName = GetLogicalDataName(connectionKey);
-						var connection = (TConnection)CallContext.LogicalGetData(logicalDataName);
-
-						connection.Dispose();
-						CallContext.LogicalSetData(logicalDataName, null);
-						_connectionKeyCounts.Remove(connectionKey);
-					}
-
-					AsyncTransaction<TConnection> transaction;
-
-					_stack.TryPop(out transaction);
-
-					if (transaction != this)
-					{
-						throw new InvalidOperationException("Must dispose instances in order of creation, reversed.");
-					}
-
-					try
-					{
-						_transactionScope.Dispose();
-					}
-					catch (TransactionAbortedException)
-					{
-					}
+				try
+				{
+					_transactionScope.Dispose();
+				}
+				catch (TransactionAbortedException)
+				{
 				}
 			}
 
 			_disposed = true;
 		}
 
-		private static string GetLogicalDataName(string connectionKey)
+		private static string GetLogicalDataName()
 		{
-			return String.Format("{0},{1}", typeof(AsyncTransaction<TConnection>).FullName, connectionKey);
+			return typeof(AsyncTransaction<TConnection>).FullName;
+		}
+
+		private class AsyncTransactionLogicalState
+		{
+			private readonly IConnectionProvider<TConnection> _connectionProvider;
+			private readonly ConcurrentDictionary<string, TConnection> _connectionsByConnectionKey = new ConcurrentDictionary<string, TConnection>();
+			private readonly ConcurrentDictionary<string, int> _countsByConnectionKey = new ConcurrentDictionary<string, int>();
+			private readonly ConcurrentStack<AsyncTransaction<TConnection>> _stack = new ConcurrentStack<AsyncTransaction<TConnection>>();
+
+			public AsyncTransactionLogicalState(IConnectionProvider<TConnection> connectionProvider)
+			{
+				_connectionProvider = connectionProvider;
+			}
+
+			public AsyncTransaction<TConnection> CurrentTransaction
+			{
+				get
+				{
+					AsyncTransaction<TConnection> transaction;
+
+					_stack.TryPeek(out transaction);
+
+					return transaction;
+				}
+			}
+
+			public void Push(AsyncTransaction<TConnection> transaction)
+			{
+				foreach (string connectionKey in transaction._connectionKeys)
+				{
+					_connectionsByConnectionKey.AddOrUpdate(connectionKey, key => _connectionProvider.GetConnection(key, false), (key, value) => value);
+					_countsByConnectionKey.AddOrUpdate(connectionKey, key => 1, (key, value) => value + 1);
+				}
+
+				_stack.Push(transaction);
+			}
+
+			public void Pop(AsyncTransaction<TConnection> transaction)
+			{
+				foreach (string connectionKey in transaction._connectionKeys)
+				{
+					if (--_countsByConnectionKey[connectionKey] > 0)
+					{
+						continue;
+					}
+
+					TConnection connection;
+
+					_connectionsByConnectionKey.TryRemove(connectionKey, out connection);
+
+					connection.Dispose();
+				}
+
+				AsyncTransaction<TConnection> poppedTransaction;
+
+				_stack.TryPop(out poppedTransaction);
+
+				if (transaction != poppedTransaction)
+				{
+					throw new InvalidOperationException("Must dispose transactions in order of creation, reversed.");
+				}
+			}
+
+			public TConnection GetConnection(string connectionKey, bool openConnection = true)
+			{
+				TConnection connection = _connectionsByConnectionKey[connectionKey];
+
+				if (connection == null)
+				{
+					throw new InvalidOperationException(String.Format("No connection with the key '{0}' is available in this context.", connectionKey));
+				}
+				if (openConnection && connection.State == ConnectionState.Closed)
+				{
+					connection.Open();
+				}
+
+				return connection;
+			}
 		}
 	}
 }
