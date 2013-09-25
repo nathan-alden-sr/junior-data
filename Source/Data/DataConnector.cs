@@ -31,6 +31,14 @@ namespace Junior.Data
 			_connectionKey = connectionKey;
 		}
 
+		protected virtual CommandBehavior DefaultCommandBehavior
+		{
+			get
+			{
+				return CommandBehavior.CloseConnection;
+			}
+		}
+
 		protected abstract TParameter GetParameter(string parameterName, object value);
 		protected abstract TParameter GetParameter(string parameterName, object value, TType type);
 		protected abstract TParameter GetParameter(string parameterName, object value, TType type, int size);
@@ -123,12 +131,12 @@ namespace Junior.Data
 
 		protected Task<TDataReader> ExecuteReaderAsync(string sql, IEnumerable<TParameter> parameters)
 		{
-			return ExecuteReaderAsync(CommandBehavior.CloseConnection, sql, parameters);
+			return ExecuteReaderAsync(DefaultCommandBehavior, sql, parameters);
 		}
 
 		protected Task<TDataReader> ExecuteReaderAsync(string sql, params TParameter[] parameters)
 		{
-			return ExecuteReaderAsync(CommandBehavior.CloseConnection, sql, (IEnumerable<TParameter>)parameters);
+			return ExecuteReaderAsync(DefaultCommandBehavior, sql, (IEnumerable<TParameter>)parameters);
 		}
 
 		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(CommandBehavior commandBehavior, string sql, Func<TDataReader, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
@@ -161,12 +169,12 @@ namespace Junior.Data
 
 		protected Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
 		{
-			return ExecuteProjectionAsync(CommandBehavior.CloseConnection, sql, getProjectedObjectDelegate, parameters);
+			return ExecuteProjectionAsync(DefaultCommandBehavior, sql, getProjectedObjectDelegate, parameters);
 		}
 
 		protected Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<TDataReader, T> getProjectedObjectDelegate, params TParameter[] parameters)
 		{
-			return ExecuteProjectionAsync(CommandBehavior.CloseConnection, sql, getProjectedObjectDelegate, (IEnumerable<TParameter>)parameters);
+			return ExecuteProjectionAsync(DefaultCommandBehavior, sql, getProjectedObjectDelegate, (IEnumerable<TParameter>)parameters);
 		}
 
 		protected async Task<IEnumerable<T>> ExecuteProjectionAsync<T>(string sql, Func<DataRow, T> getProjectedObjectDelegate, IEnumerable<TParameter> parameters)
