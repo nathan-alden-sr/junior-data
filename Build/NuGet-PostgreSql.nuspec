@@ -8,7 +8,6 @@
 		<description>JuniorData is the easy-to-learn, easy-to-use data access framework for .NET. This package provides data access components for PostgreSQL.</description>
 		<releaseNotes></releaseNotes>
 		<projectUrl>https://nathanalden.github.com/JuniorData</projectUrl>
-		<iconUrl>https://docs.google.com/uc?export=download&amp;id=0B8a4O6RATfaXQ2YxekpxbXRfUjQ</iconUrl>
 		<dependencies>
 			<group>
 				<dependency id="JuniorCommon" version="3.8.0"/>

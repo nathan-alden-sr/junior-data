@@ -1,4 +1,6 @@
-﻿using Junior.Common;
+﻿using System;
+
+using Junior.Common;
 
 using Npgsql;
 
@@ -17,7 +19,7 @@ namespace Junior.Data.PostgreSql
 		{
 			parameterName.ThrowIfNull("parameterName");
 
-			return new NpgsqlParameter(parameterName, value);
+			return new NpgsqlParameter(parameterName, value ?? DBNull.Value);
 		}
 
 		protected override sealed NpgsqlParameter GetParameter(string parameterName, object value, NpgsqlDbType type)

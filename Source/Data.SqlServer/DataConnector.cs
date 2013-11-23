@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 
 using Junior.Common;
@@ -16,7 +17,7 @@ namespace Junior.Data.SqlServer
 		{
 			parameterName.ThrowIfNull("parameterName");
 
-			return new SqlParameter(parameterName, value);
+			return new SqlParameter(parameterName, value ?? DBNull.Value);
 		}
 
 		protected override sealed SqlParameter GetParameter(string parameterName, object value, SqlDbType type)

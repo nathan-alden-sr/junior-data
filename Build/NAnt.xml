@@ -20,7 +20,7 @@
 	<property name="NuGetStagingBinDirectory" value="${path::combine(NuGetStagingDirectory, 'bin')}"/>
 
 	<!-- Paths -->
-	<property name="NuGetPath" value="${path::combine(BuildDirectory, 'NuGet-2.2.1\NuGet.exe')}"/>
+	<property name="NuGetPath" value="${path::combine(BuildDirectory, 'NuGet-2.7.1\NuGet.exe')}"/>
 	<property name="SolutionPath" value="${path::combine(SourceDirectory, project::get-name() + '.sln')}"/>
 
 	<!-- Build -->

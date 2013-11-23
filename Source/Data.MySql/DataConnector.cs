@@ -1,4 +1,6 @@
-﻿using Junior.Common;
+﻿using System;
+
+using Junior.Common;
 
 using MySql.Data.MySqlClient;
 
@@ -15,7 +17,7 @@ namespace Junior.Data.MySql
 		{
 			parameterName.ThrowIfNull("parameterName");
 
-			return new MySqlParameter(parameterName, value);
+			return new MySqlParameter(parameterName, value ?? DBNull.Value);
 		}
 
 		protected override sealed MySqlParameter GetParameter(string parameterName, object value, MySqlDbType type)
